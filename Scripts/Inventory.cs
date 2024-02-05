@@ -12,7 +12,7 @@ public class Inventory : MonoBehaviour
     private GameObject[,] InventorySlots = new GameObject[0,0];
     private bool[,] InventorySlotsFree = new bool[0,0];
 
-    public Item flashlight;
+    public Item item;
 
     void Update(){
         if(Input.GetKeyUp(KeyCode.Alpha1)){
@@ -46,28 +46,43 @@ public class Inventory : MonoBehaviour
                     }
                 }   
             }
-            InventorySlotsFree[1,1] = false;
-            InventorySlotsFree[2,2] = false;
-            InventorySlots[1,1].GetComponent<Image>().color = Color.red;
-            InventorySlots[2,2].GetComponent<Image>().color = Color.red;
+            InventorySlotsFree[2,1] = false;
+            InventorySlotsFree[3,3] = false;
+            InventorySlots[2,1].GetComponent<Image>().color = Color.green;
+            InventorySlots[3,3].GetComponent<Image>().color = Color.green;
         }
 
         if(Input.GetKeyUp(KeyCode.Alpha2)){
-            PickUpItem();
+            PickUpItem(item);
         }
     }
 
-    void PickUpItem() {
+    void PickUpItem(Item item) {
         for (int x = 0; x < InventoryColumns; x++)
         {
             for (int y = 0; y < InventoryRows; y++)
             {
-                if( InventorySlotsFree[x,y] == true && InventorySlotsFree[x+flashlight.xSize-1,y+flashlight.ySize-1] == true){
-                    InventorySlotsFree[x,y] = false;
-                    InventorySlotsFree[x+flashlight.xSize-1,y+flashlight.ySize-1] = false;
-                    InventorySlots[x,y].GetComponent<Image>().color = Color.red;
-                    InventorySlots[x+flashlight.xSize-1,y+flashlight.ySize-1].GetComponent<Image>().color = Color.red;
-                    Debug.Log((x+flashlight.xSize-1).ToString()+ "," + (y+flashlight.ySize-1).ToString());
+                bool isThereSpace = true;
+                for (int i = 0; i < item.xSize; i++)
+                {
+                    for (int j = 0; j < item.ySize; j++)
+                    {
+                        // Debug.Log("X,Y:"+ x + "," + y + "|" + (x+i) + "," + (y+j));
+                        if(InventorySlotsFree[x+i,y+j] == false){
+                            isThereSpace = false;
+                        }
+                    }
+                }
+                if (isThereSpace)
+                {
+                    for (int i = 0; i < item.xSize; i++)
+                    {
+                        for (int j = 0; j < item.ySize; j++)
+                        {
+                            InventorySlotsFree[x+i,y+j] = false;
+                            InventorySlots[x+i,y+j].GetComponent<Image>().color = Color.red; 
+                        }
+                    }
                     return;
                 }
             }   
