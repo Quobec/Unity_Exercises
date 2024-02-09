@@ -7,7 +7,7 @@ public class Inventory : MonoBehaviour
 
     public GameObject InventoryContentObject;
     public List<GameObject>    InventoryList;
-    public int InventoryColumns;
+    private int InventoryColumns;
     public int InventoryRows;
     private GameObject[,] InventorySlots = new GameObject[0,0];
     private bool[,] InventorySlotsFree = new bool[0,0];
@@ -43,17 +43,21 @@ public class Inventory : MonoBehaviour
                         InventorySlotsFree[x,y] = true;
                         index++;
                         InventorySlots[x,y].GetComponent<RectTransform>().Find("Text").GetComponent<Text>().text = x + "," + y; 
+                        ChangeSlotStatus(x,y,true, Color.white);
                     }
                 }   
             }
-            InventorySlotsFree[2,1] = false;
-            InventorySlotsFree[3,3] = false;
-            InventorySlots[2,1].GetComponent<Image>().color = Color.green;
-            InventorySlots[3,3].GetComponent<Image>().color = Color.green;
+            ChangeSlotStatus(1,1,false, Color.green);
+            ChangeSlotStatus(3,2,false, Color.green);
+            ChangeSlotStatus(2,3,false, Color.green);
         }
 
         if(Input.GetKeyUp(KeyCode.Alpha2)){
             PickUpItem(item);
+        }
+
+        if(Input.GetKeyUp(KeyCode.Tab)){
+            this.gameObject.GetComponent<RectTransform>().Find("Viewport").gameObject.SetActive(!this.gameObject.GetComponent<RectTransform>().Find("Viewport").gameObject.activeSelf);
         }
     }
 
@@ -67,7 +71,6 @@ public class Inventory : MonoBehaviour
                 {
                     for (int j = 0; j < item.ySize; j++)
                     {
-                        // Debug.Log("X,Y:"+ x + "," + y + "|" + (x+i) + "," + (y+j));
                         if(InventorySlotsFree[x+i,y+j] == false){
                             isThereSpace = false;
                         }
@@ -79,13 +82,44 @@ public class Inventory : MonoBehaviour
                     {
                         for (int j = 0; j < item.ySize; j++)
                         {
-                            InventorySlotsFree[x+i,y+j] = false;
-                            InventorySlots[x+i,y+j].GetComponent<Image>().color = Color.red; 
+                            ChangeSlotStatus(x+i,y+j,false, Color.yellow);
                         }
                     }
                     return;
+                } else {
+                    isThereSpace = true;
+                    for (int i = 0; i < item.ySize; i++)
+                    {
+                        for (int j = 0; j < item.xSize; j++)
+                        {
+                            //Debug.Log("X,Y:" +x+","+y+"|"+(x+i) +',' + (y+j) );
+                            if(InventorySlotsFree[x+i,y+j] == false){
+                                isThereSpace = false;
+                            }
+                        }
+                    }
+                    if(isThereSpace){
+                        for (int i = 0; i < item.ySize; i++)
+                        {
+                            for (int j = 0; j < item.xSize; j++)
+                            {
+                                ChangeSlotStatus(x+i,y+j,false, Color.cyan);
+                            }
+                        }
+                        return;
+                    }
                 }
             }   
+        }
+    }
+
+    void ChangeSlotStatus(int x, int y, bool isFree, Color color){
+        if(isFree){
+            InventorySlotsFree[x,y] = true;
+            InventorySlots[x,y].GetComponent<Image>().color = color;  
+        } else {
+            InventorySlotsFree[x,y] = false;
+            InventorySlots[x,y].GetComponent<Image>().color = color;
         }
     }
 }
